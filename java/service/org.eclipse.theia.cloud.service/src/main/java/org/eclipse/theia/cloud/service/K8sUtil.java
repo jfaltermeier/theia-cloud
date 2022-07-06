@@ -25,10 +25,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.theia.cloud.common.k8s.resource.Session;
 import org.eclipse.theia.cloud.common.k8s.resource.SessionSpec;
 import org.eclipse.theia.cloud.common.k8s.resource.SessionSpecResourceList;
+import org.eclipse.theia.cloud.common.k8s.resource.SessionUtil;
 import org.jboss.logging.Logger;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaimList;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -44,6 +47,7 @@ public final class K8sUtil {
     private static final Logger LOGGER = Logger.getLogger(K8sUtil.class);
 
     private static final String COR_ID_INIT = "init";
+    private static final String PVC_USER_LABEL = "theia.cloud.user";
 
     private static String NAMESPACE = "";
     private static DefaultKubernetesClient CLIENT = createClient();
@@ -170,6 +174,14 @@ public final class K8sUtil {
 		    "updating activity for session {" + name + " - " + appDefinition + " - " + user + "}"));
 	    return session;
 	});
+    }
+
+    public static void foo(String correlationId, String user) {
+	String validUser = SessionUtil.validUserName(user);
+
+	NonNamespaceOperation<PersistentVolumeClaim, PersistentVolumeClaimList, Resource<PersistentVolumeClaim>> inNamespace = CLIENT
+		.persistentVolumeClaims().inNamespace(K8sUtil.NAMESPACE);
+
     }
 
 }

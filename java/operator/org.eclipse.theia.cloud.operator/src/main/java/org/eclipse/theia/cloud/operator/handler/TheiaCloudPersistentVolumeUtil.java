@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.theia.cloud.common.k8s.resource.Session;
+import org.eclipse.theia.cloud.common.k8s.resource.SessionUtil;
 import org.eclipse.theia.cloud.operator.resource.AppDefinitionSpec;
 
 import io.fabric8.kubernetes.api.model.Container;
@@ -28,6 +29,7 @@ import io.fabric8.kubernetes.api.model.PodSpec;
 public final class TheiaCloudPersistentVolumeUtil {
 
     public static final String PLACEHOLDER_PERSISTENTVOLUMENAME = "placeholder-pv";
+    public static final String PLACEHOLDER_USERLABEL = "placeholder-userlabel";
 
     private static final String MOUNT_PATH = "/home/project/persisted";
 
@@ -44,15 +46,14 @@ public final class TheiaCloudPersistentVolumeUtil {
     }
 
     public static String getPersistentVolumeName(Session session) {
-	String user = session.getSpec().getUser();
-	String pvName = user.replace("@", "at").replace(".", "-");
-	return pvName;
+	return SessionUtil.validUserName(session);
     }
 
     public static Map<String, String> getPersistentVolumeReplacements(String namespace, Session session) {
 	Map<String, String> replacements = new LinkedHashMap<String, String>();
 	replacements.put(PLACEHOLDER_PERSISTENTVOLUMENAME, getPersistentVolumeName(session));
 	replacements.put(TheiaCloudHandlerUtil.PLACEHOLDER_NAMESPACE, namespace);
+	replacements.put(PLACEHOLDER_USERLABEL, SessionUtil.validUserName(session));
 	return replacements;
     }
 
@@ -60,6 +61,7 @@ public final class TheiaCloudPersistentVolumeUtil {
 	Map<String, String> replacements = new LinkedHashMap<String, String>();
 	replacements.put(PLACEHOLDER_PERSISTENTVOLUMENAME, getPersistentVolumeName(session));
 	replacements.put(TheiaCloudHandlerUtil.PLACEHOLDER_NAMESPACE, namespace);
+	replacements.put(PLACEHOLDER_USERLABEL, SessionUtil.validUserName(session));
 	return replacements;
     }
 
